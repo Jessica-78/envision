@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a2e35; /* Dark teal background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #56c7c7; /* Lighter teal for heading */
+        }
+
+        form {
+            background-color: #253f47; /* Slightly lighter teal for form */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #eaf7f7; /* Light text for labels */
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #56c7c7; /* Teal border for input fields */
+            border-radius: 4px;
+            font-size: 14px;
+            color: #eaf7f7; /* Light text inside input fields */
+            background-color: #344f56; /* Darker background for input fields */
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #56c7c7; /* Button color matching the theme */
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #44b2b2; /* Darker teal on hover */
+        }
+
+        p {
+            text-align: center;
+            margin-top: 20px;
+            color: #eaf7f7; /* Light text for paragraph */
+        }
+
+        a {
+            color: #56c7c7; /* Teal link color */
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="/signup" method="post">
+        <h1>Sign Up</h1>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Sign Up</button>
+
+        <p>Already have an account? <a href="/login">Login here</a></p>
+    </form>
+</body>
+
+</html>
