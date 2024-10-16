@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a2e35; /* Dark teal background */
+            color: #eaf7f7; /* Light text to contrast with the dark background */
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #56c7c7; /* Lighter teal color to match the logo's colors */
+            text-align: center;
+            margin-bottom: 20px; /* Added spacing below headings */
+        }
+
+        form {
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #253f47; /* Slightly lighter teal for the form background */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4); /* Subtle shadow for depth */
+            max-width: 400px; /* Limit width for better mobile view */
+        }
+
+        input[type="file"],
+        input[type="text"] {
+            margin-bottom: 15px; /* Increased spacing */
+            padding: 12px; /* Increased padding for better touch targets */
+            width: 93%;
+            font-size: 16px;
+            background-color: #344f56; /* Darker blue/teal for input fields */
+            color: #eaf7f7; /* Light text inside input fields */
+            border: 1px solid #56c7c7; /* Border color to match logo */
+            border-radius: 5px;
+            transition: border-color 0.3s; /* Smooth transition for focus */
+        }
+
+        input[type="file"]:focus,
+        input[type="text"]:focus {
+            border-color: #44b2b2; /* Darker teal on focus */
+            outline: none; /* Remove default outline */
+        }
+
+        button {
+            background-color: #56c7c7; /* Button color matching the logo's teal */
+            color: white;
+            border: none;
+            padding: 12px; /* Increased padding */
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s; /* Added transform for hover */
+            width: 100%; /* Full width button */
+        }
+
+        button:hover {
+            background-color: #44b2b2; /* Slightly darker teal on hover */
+            transform: translateY(-2px); /* Lift effect on hover */
+        }
+
+        #response {
+            font-size: larger;
+            display: none; /* Initially hide response */
+            background-color: #253f47; /* Same background color as the form */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4); /* Consistent shadow */
+            overflow: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #eaf7f7; /* Light text color */
+            margin-top: 20px;
+            max-width: 400px; /* Limit width for consistency */
+            margin-left: auto; /* Center response area */
+            margin-right: auto; /* Center response area */
+        }
+
+        /* Loader Styles */
+        #loader {
+            display: none;
+            border: 8px solid #f3f3f3; /* Light gray */
+            border-top: 8px solid #56c7c7; /* Teal color */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto; /* Center the loader */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Upload Video for Analysis</h1>
+
+    <form id="uploadForm">
+        <input type="file" id="videoFile" accept="video/*" required>
+        <input type="text" id="userPrompt" placeholder="Enter your precautions" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <div id="loader"></div> <!-- Loader Element -->
+
+    <h1 id="responseHeader" style="display: none;">Response</h1> <!-- Initially hidden header -->
+    <pre id="response"></pre>
+
+    <script>
+        document.getElementById("uploadForm").onsubmit = async function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData();
+            const videoFile = document.getElementById("videoFile").files[0];
+            const userPrompt = document.getElementById("userPrompt").value;
+            formData.append("file", videoFile);
+            formData.append("user_prompt", userPrompt);
+
+            // Show the loader
+            const loader = document.getElementById("loader");
+            loader.style.display = "block";
+
+            // Hide the response initially
+            const responseContainer = document.getElementById("response");
+            responseContainer.style.display = "none";
+            const responseHeader = document.getElementById("responseHeader");
+            responseHeader.style.display = "none"; // Hide response header initially
+
+            try {
+                const response = await fetch("http://localhost:8000/upload-video/", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                // Hide the loader
+                loader.style.display = "none";
+
+                if (response.ok) {
+                    const generatedText = await response.text(); // Get plain text response
+                    const formattedText = convertTextToHTML(generatedText); // Convert the text to HTML
+                    responseContainer.innerHTML = formattedText; // Display the generated HTML
+                    responseContainer.style.display = "block"; // Show response when data is received
+                    responseHeader.style.display = "block"; // Show response header when data is received
+                } else {
+                    responseContainer.textContent = "Error: " + response.status;
+                    responseContainer.style.display = "block"; // Show error message
+                    responseHeader.style.display = "block"; // Show response header on error
+                }
+            } catch (error) {
+                // Hide the loader
+                loader.style.display = "none";
+                responseContainer.textContent = "Error: " + error.message;
+                responseContainer.style.display = "block"; // Show error message
+                responseHeader.style.display = "block"; // Show response header on error
+            }
+        };
+
+        function convertTextToHTML(text) {
+            // Convert **bold** to <strong> tags
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // Convert bullet points starting with * followed by a space to <li> and wrap in <ul>
+            text = text.replace(/(?:^|\n)\* (.+?)(?=\n|$)/g, '<li>$1</li>');
+
+            // Wrap all <li> items in a <ul> block
+            if (text.includes('<li>')) {
+                text = '<ul>' + text + '</ul>';
+            }
+
+            // Replace remaining single newlines with <br> (after bullet points have been handled)
+            text = text.replace(/\n/g, '<br>');
+
+            return text;
+        }
+    </script>
+</body>
+
+</html>
